@@ -134,25 +134,22 @@ do
     end
 end
 
-print('[~]')
+print('[~] Hooks Initialized')
 
--- discord popup --
 local rq = syn and syn.request or http_request or request or http.request
 pcall(function()
     rq({
-    Url = "http://127.0.0.1:6463/rpc?v=1",
-    Method = "POST",
-    Headers = {
-        ["Content-Type"] = "application/json",
-        ["Origin"] = "https://discord.com"
-    },
-    Body = game:GetService("HttpService"):JSONEncode({
-        cmd = "INVITE_BROWSER",
-        args = {
-            code = "EAtMpgB6Fa"
+        Url = "http://127.0.0.1:6463/rpc?v=1",
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "application/json",
+            ["Origin"] = "https://discord.com"
         },
-        nonce = game:GetService("HttpService"):GenerateGUID(false)
-    }),
+        Body = game:GetService("HttpService"):JSONEncode({
+            cmd = "INVITE_BROWSER",
+            args = { code = "EAtMpgB6Fa" },
+            nonce = game:GetService("HttpService"):GenerateGUID(false)
+        }),
     })
 end)
 
@@ -166,34 +163,41 @@ end
 local eattheF = getfenv()
 local eattheG = getgenv()
 
-local C = (cloneref(game:GetService("Players"))).LocalPlayer;
-local g = C.PlayerScripts;
+local C = (cloneref(game:GetService("Players"))).LocalPlayer
+local g = C.PlayerScripts
 
-local cameraSecurity = require(g.Modules.CameraSecurity);
+local cameraSecurity = require(g.Modules.CameraSecurity)
 local mt = getrawmetatable(cameraSecurity)
-local b = {};
-
-local originalIndex = rawget(getmetatable(cameraSecurity) or {}, "__index");
-local originalTostring = rawget(getmetatable(cameraSecurity) or {}, "__tostring");
-local originalNewindex = rawget(getmetatable(cameraSecurity) or {}, "__newindex");
 
 mt.__index = function(...)
-    return nil;
-end;
+    return nil
+end
 
 mt.__tostring = function(...)
-    return "LocalPlayer = nil";
-end;
+    return "LocalPlayer = nil"
+end
 
 mt.__newindex = function(E, G, f, ...)
-    return rawset(E, G, f);
-end;
-
-print(cameraSecurity, b)
+    return rawset(E, G, f)
+end
 
 local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
 local Players = cloneref(game:GetService("Players"))
 local ReplicatedFirst = cloneref(game:GetService('ReplicatedFirst'))
+local UserInputService = cloneref(game:GetService('UserInputService'))
+local TextChatService = cloneref(game:GetService("TextChatService"))
+local TweenService = cloneref(game:GetService('TweenService'))
+local TextService = cloneref(game:GetService('TextService'))
+local GuiService = cloneref(game:GetService('GuiService'))
+local RunService = cloneref(game:GetService('RunService'))
+local HttpService = cloneref(game:GetService('HttpService'))
+local CoreGui = cloneref(game:GetService('CoreGui'))
+local Lighting = cloneref(game:GetService("Lighting"))
+local VirtualInputManager = cloneref(game:GetService('VirtualInputManager'))
+local GroupService = cloneref(game:GetService('GroupService'))
+local MarketplaceService = cloneref(game:GetService('MarketplaceService'))
+local ContextService = cloneref(game:GetService("ContextActionService"))
+local LocalPlayer = Players.LocalPlayer
 
 local mainapi = setmetatable({
 	Tabs = {};
@@ -213,7 +217,22 @@ local mainapi = setmetatable({
 	ClickGuiStatus = false;
 	SecurityDisabled = false;
 	SearchText = "";
-})
+	Connections = {};
+}, {})
+
+local function getGuiParent()
+    local guiParent = CoreGui
+    if type(gethui) == "function" then
+        local ok, hui = pcall(gethui)
+        if ok and hui then guiParent = hui end
+    end
+    return guiParent
+end
+
+mainapi.MainScreenGui.Name = "LionOverlayGui"
+mainapi.MainScreenGui.ResetOnSpawn = false
+mainapi.MainScreenGui.IgnoreGuiInset = true
+mainapi.MainScreenGui.Parent = getGuiParent()
 
 for _, service in pairs({Players, workspace, ReplicatedStorage, ReplicatedFirst}) do
 	service.Name = service.Name .. " "
@@ -221,10 +240,9 @@ end
 
 coroutine.wrap(function()
 	while wait(1) do
-		local status, err = pcall(function()
+		local status = pcall(function()
 			return game:Kick()
 		end)
-
 		if status then
 			print("[ANTI-CHEAT] Hook detected: game:Kick() returned successfully")
 		end
@@ -239,118 +257,27 @@ task.spawn(function()
 	while wait(12 * math.random()) do
 		local rnd = math.random(1, 9999)
 		local value = rnd == 6961 and 2137 or rnd == ServerPing.Value and 2138 or rnd
-
 		if PingRemote then
 			PingRemote:FireServer(value)
 		end
 	end
 end)
 
-task.spawn(function()
-	while task.wait(1) do
-		local ok, count = pcall(function()
-			return #getmetatable(mainapi)
-		end)
-
-		if ok and count ~= 4 then
-			print("[ANTI-CHEAT] Metatable tampering detected")
-		end
-	end
-end)
-
-mainapi.BindingBusy = false
-mainapi.ActiveBindCancel = nil
-mainapi.SuppressModuleClickUntil = 0
-mainapi.SuppressBindToggleUntil = 0
-local Modern = shared.Modern
-
-local cloneref = cloneref or function(obj)
-	return obj
-end
-
-local UserInputService = cloneref(game:GetService('UserInputService'))
-local TextChatService = cloneref(game:GetService("TextChatService"))
-local TweenService = cloneref(game:GetService('TweenService'))
-local TextService = cloneref(game:GetService('TextService'))
-local GuiService = cloneref(game:GetService('GuiService'))
-local RunService = cloneref(game:GetService('RunService'))
-local HttpService = cloneref(game:GetService('HttpService'))
-local CoreGui = cloneref(game:GetService('CoreGui'))
-local Lighting = cloneref(game:GetService("Lighting"))
-local Players = cloneref(game:GetService('Players'))
-local ReplicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
-local VirtualInputManager = cloneref(game:GetService('VirtualInputManager'))
-local GroupService = cloneref(game:GetService('GroupService'))
-local MarketplaceService = cloneref(game:GetService('MarketplaceService'))
-local ContextService = cloneref(game:GetService("ContextActionService"))
-local LocalPlayer = Players.LocalPlayer
-local fontsize = Instance.new('GetTextBoundsParams')
-fontsize.Width = math.huge
-
-local shootingRangeCache, shootingRangeChecked = false, 0
 local function isShootingRange()
-    local now = os.clock()
-    if now - shootingRangeChecked < 0.5 then return shootingRangeCache end
-    shootingRangeChecked = now
-
-    local function matches(value)
-        if value == nil then return false end
-        local text = tostring(value):lower():gsub("[%s_%-]", "")
-        return text:find("shootingrange", 1, true) ~= nil
-            or text:find("firingrange", 1, true) ~= nil
-            or text:find("사격장", 1, true) ~= nil
-    end
-
+    local text = ""
     for _, object in ipairs({workspace, LocalPlayer}) do
         for _, attribute in ipairs({"Map", "MapName", "Mode", "GameMode", "Arena", "Environment", "EnvironmentName", "ShootingRange"}) do
             local value = object:GetAttribute(attribute)
-            if (value == true and attribute == "ShootingRange") or matches(value) then
-                shootingRangeCache = true
-                return true
+            if value then
+                text = tostring(value):lower()
+                if text:find("shootingrange", 1, true) or text:find("firingrange", 1, true) or text:find("사격장", 1, true) then
+                    return true
+                end
             end
         end
     end
-
-    local character = LocalPlayer.Character
-    local current = character
-    while current and current ~= workspace do
-        if matches(current.Name) then
-            shootingRangeCache = true
-            return true
-        end
-        current = current.Parent
-    end
-
-    local root = character and character:FindFirstChild("HumanoidRootPart")
-    local function matchingAreaIsNear(object)
-        if not matches(object.Name) or not root then return false end
-        local part = object:IsA("BasePart") and object or object:FindFirstChildWhichIsA("BasePart", true)
-        return part and (part.Position - root.Position).Magnitude < 2000
-    end
-    for _, child in ipairs(workspace:GetChildren()) do
-        if matchingAreaIsNear(child) then
-            shootingRangeCache = true
-            return true
-        end
-        for _, grandchild in ipairs(child:GetChildren()) do
-            if matchingAreaIsNear(grandchild) then
-                shootingRangeCache = true
-                return true
-            end
-        end
-    end
-
-    shootingRangeCache = false
     return false
 end
-
-local MenuBlur = Lighting:FindFirstChild("LionMenuBlur")
-if not MenuBlur or not MenuBlur:IsA("BlurEffect") then
-    MenuBlur = Instance.new("BlurEffect")
-    MenuBlur.Name = "LionMenuBlur"
-    MenuBlur.Parent = Lighting
-end
-MenuBlur.Size = 0
 
 local function setMenuBlur(open)
     local blur = Lighting:FindFirstChild("LionMenuBlur")
@@ -359,30 +286,8 @@ local function setMenuBlur(open)
         blur.Name = "LionMenuBlur"
         blur.Parent = Lighting
     end
-    blur.Parent = Lighting
     blur.Size = open and 20 or 0
-
-    if not open then
-        for _, effect in next, Lighting:GetChildren() do
-            if effect:IsA("BlurEffect") then
-                effect.Size = 0
-            end
-        end
-    end
 end
-
-local function getRootPart()
-    local char = LocalPlayer.Character
-    if not char then
-        return nil
-    end
-
-    return char:FindFirstChild("HumanoidRootPart")
-        or char:FindFirstChild("RootPart")
-        or char.PrimaryPart
-end
-
-local rootPart = getRootPart()
 
 local entitylib = {
 	isAlive = false,
@@ -394,38 +299,28 @@ local entitylib = {
 	Running = false,
 	Events = {}
 }
-
 mainapi.Libraries.entitylib = entitylib
 
 local function createEvent()
-	local event = {
-		Connections = {}
-	}
-
+	local event = { Connections = {} }
 	function event:Connect(func)
 		table.insert(self.Connections, func)
-
 		return {
 			Disconnect = function()
 				local index = table.find(self.Connections, func)
-				if index then
-					table.remove(self.Connections, index)
-				end
+				if index then table.remove(self.Connections, index) end
 			end
 		}
 	end
-
 	function event:Fire(...)
-		for _, func in self.Connections do
+		for _, func in ipairs(self.Connections) do
 			task.spawn(func, ...)
 		end
 	end
-
 	function event:Destroy()
 		table.clear(self.Connections)
 		table.clear(self)
 	end
-
 	return event
 end
 
@@ -433,67 +328,19 @@ function entitylib:GetEvent(name)
 	if not self.Events[name] then
 		self.Events[name] = createEvent()
 	end
-
 	return self.Events[name]
 end
 
-mainapi.Libraries.auraanims = {
-	Normal = {
-		{CFrame = CFrame.new(-0.17, -0.14, -0.12) * CFrame.Angles(math.rad(-53), math.rad(50), math.rad(-64)), Time = 0.1},
-		{CFrame = CFrame.new(-0.55, -0.59, -0.1) * CFrame.Angles(math.rad(-161), math.rad(54), math.rad(-6)), Time = 0.08},
-		{CFrame = CFrame.new(-0.62, -0.68, -0.07) * CFrame.Angles(math.rad(-167), math.rad(47), math.rad(-1)), Time = 0.03},
-		{CFrame = CFrame.new(-0.56, -0.86, 0.23) * CFrame.Angles(math.rad(-167), math.rad(49), math.rad(-1)), Time = 0.03}
-	},
-	Random = {},
-	['Horizontal Spin'] = {
-		{CFrame = CFrame.Angles(math.rad(-10), math.rad(-90), math.rad(-80)), Time = 0.12},
-		{CFrame = CFrame.Angles(math.rad(-10), math.rad(180), math.rad(-80)), Time = 0.12},
-		{CFrame = CFrame.Angles(math.rad(-10), math.rad(90), math.rad(-80)), Time = 0.12},
-		{CFrame = CFrame.Angles(math.rad(-10), 0, math.rad(-80)), Time = 0.12}
-	},
-	['Vertical Spin'] = {
-		{CFrame = CFrame.Angles(math.rad(-90), 0, math.rad(15)), Time = 0.12},
-		{CFrame = CFrame.Angles(math.rad(180), 0, math.rad(15)), Time = 0.12},
-		{CFrame = CFrame.Angles(math.rad(90), 0, math.rad(15)), Time = 0.12},
-		{CFrame = CFrame.Angles(0, 0, math.rad(15)), Time = 0.12}
-	},
-	Exhibition = {
-		{CFrame = CFrame.new(0.69, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(50), math.rad(-90)), Time = 0.1},
-		{CFrame = CFrame.new(0.7, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.2}
-	},
-	['Exhibition Old'] = {
-		{CFrame = CFrame.new(0.69, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(50), math.rad(-90)), Time = 0.15},
-		{CFrame = CFrame.new(0.69, -0.7, 0.6) * CFrame.Angles(math.rad(-30), math.rad(50), math.rad(-90)), Time = 0.05},
-		{CFrame = CFrame.new(0.7, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.1},
-		{CFrame = CFrame.new(0.7, -0.71, 0.59) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.05},
-		{CFrame = CFrame.new(0.63, -0.1, 1.37) * CFrame.Angles(math.rad(-84), math.rad(50), math.rad(-38)), Time = 0.15}
-	}
-}
-
 function entitylib:IsAlive()
-	local char = lplr.Character
+	local char = LocalPlayer.Character
 	if not char then return false end
-
 	local root = char:FindFirstChild("HumanoidRootPart")
 	local humanoid = char:FindFirstChildOfClass("Humanoid")
-
-	if root and humanoid and humanoid.Health > 0 then
-		return true
-	end
-	return false
+	return (root and humanoid and humanoid.Health > 0) == true
 end
 
 function IsAlive()
-	local char = LocalPlayer.Character
-	if not char then return false end
-
-	local root = char:FindFirstChild("HumanoidRootPart")
-	local humanoid = char:FindFirstChildOfClass("Humanoid")
-
-	if root and humanoid and humanoid.Health > 0 then
-		return true
-	end
-	return false
+	return entitylib:IsAlive()
 end
 
 local CONFIG_FOLDER = "Overlay"
@@ -502,135 +349,68 @@ local CONFIG_FILE = CONFIG_FOLDER .. "/config.json"
 local function EnsureConfigFolder()
     if not makefolder then return end
     if isfolder and isfolder(CONFIG_FOLDER) then return end
-
-    pcall(function()
-        makefolder(CONFIG_FOLDER)
-    end)
+    pcall(makefolder, CONFIG_FOLDER)
 end
-
 EnsureConfigFolder()
 
-local Config = {
-    Modules = {},
-    Gui = {}
-}
-
-local TargetHudMain, RagebotStatusMain, Theme
+local Config = { Modules = {}, Gui = {} }
 local _lastConfigJson = nil
-local _savingConfig = true
-local _configSaveQueued = false
+local _savingConfig = false
 
 local function SaveConfig(force)
     if _savingConfig and not force then return end
     if not writefile then return end
-
-    if not force then
-        if _configSaveQueued then return end
-        _configSaveQueued = true
-        task.delay(0.15, function()
-            _configSaveQueued = false
-            SaveConfig(true)
-        end)
-        return
-    end
-
-    local wasSaving = _savingConfig
     _savingConfig = true
-
-    local ok, err = pcall(function()
+    pcall(function()
         EnsureConfigFolder()
-
-        local data = {
-            Modules = {},
-            Gui = {}
-        }
-
+        local data = { Modules = {}, Gui = {} }
         for name, module in pairs(mainapi.Modules) do
             local settings = {}
-
             if module.Settings then
                 for sname, setting in pairs(module.Settings) do
                     if type(setting) == "table" and setting.Save then
-                        pcall(function()
-                            setting:Save(settings)
-                        end)
+                        pcall(function() setting:Save(settings) end)
                     end
                 end
             end
-
-            local moduleColors
-            if module.Colors then
-                moduleColors = {}
-                for i, color in ipairs(module.Colors) do
-                    moduleColors[i] = {
-                        R = color.R,
-                        G = color.G,
-                        B = color.B,
-                        Transparency = module.ColorTransparency and module.ColorTransparency[i] or 0,
-                    }
-                end
-            elseif module.Value then
-                moduleColors = {
-                    {
-                        R = module.Value.R,
-                        G = module.Value.G,
-                        B = module.Value.B,
-                        Transparency = 0,
-                    }
-                }
-            end
-
             data.Modules[name] = {
                 Enabled = module.Enabled,
-                Expanded = module.Expanded,
-                Bind = typeof(module.Bind) == "EnumItem" and {
-                    EnumType = module.Bind.EnumType == Enum.KeyCode and "Enum.KeyCode" or "Enum.UserInputType",
-                    Name = module.Bind.Name
-                } or nil,
-                Colors = moduleColors,
                 Settings = settings
             }
         end
-
         local json = HttpService:JSONEncode(data)
-
         if json ~= _lastConfigJson then
             _lastConfigJson = json
             writefile(CONFIG_FILE, json)
         end
     end)
-
-    _savingConfig = wasSaving and not force
-
-    if not ok then
-        warn("[ModernClient] SaveConfig failed:", err)
-    end
+    _savingConfig = false
 end
 
-local FlushConfig = SaveConfig
 function mainapi:Save()
     return SaveConfig(true)
 end
 
-local playersService = cloneref(game:GetService('Players'))
-local inputService = cloneref(game:GetService('UserInputService'))
-local lplr = playersService.LocalPlayer
 local gameCamera = workspace.CurrentCamera
-
 local function getGameCamera()
 	local cam = workspace.CurrentCamera
-	if cam and cam ~= gameCamera then
-		gameCamera = cam
-	end
+	if cam and cam ~= gameCamera then gameCamera = cam end
 	return gameCamera
 end
 
 local function getMousePosition()
 	local camera = getGameCamera()
-	if inputService.TouchEnabled then
+	if UserInputService.TouchEnabled then
 		return camera.ViewportSize / 2
 	end
-	return inputService.GetMouseLocation(inputService)
+	return UserInputService:GetMouseLocation()
+end
+
+local function loopClean(tbl)
+	for i, v in pairs(tbl) do
+		if type(v) == 'table' then loopClean(v) end
+		tbl[i] = nil
+	end
 end
 
 local function waitForChildOfType(obj, name, timeout, prop)
@@ -645,14 +425,12 @@ local function waitForChildOfType(obj, name, timeout, prop)
 end
 
 entitylib.targetCheck = function(ent)
-	if ent.TeamCheck then
-		return ent:TeamCheck()
-	end
+	if ent.TeamCheck then return ent:TeamCheck() end
 	if ent.NPC then return true end
-	if not lplr.Team then return true end
-	if not ent.Player.Team then return true end
-	if ent.Player.Team ~= lplr.Team then return true end
-	return #ent.Player.Team:GetPlayers() == #playersService:GetPlayers()
+	if not LocalPlayer.Team then return true end
+	if not ent.Player or not ent.Player.Team then return true end
+	if ent.Player.Team ~= LocalPlayer.Team then return true end
+	return #ent.Player.Team:GetPlayers() == #Players:GetPlayers()
 end
 
 entitylib.getUpdateConnections = function(ent)
@@ -664,7 +442,7 @@ entitylib.getUpdateConnections = function(ent)
 end
 
 entitylib.isVulnerable = function(ent)
-	return ent.Health > 0 and not ent.Character.FindFirstChildWhichIsA(ent.Character, 'ForceField')
+	return ent.Health > 0 and not ent.Character:FindFirstChildWhichIsA('ForceField')
 end
 
 entitylib.getEntityColor = function(ent)
@@ -678,126 +456,47 @@ entitylib.IgnoreObject.RespectCanCollide = true
 entitylib.Wallcheck = function(origin, position, ignoreobject)
 	local camera = getGameCamera()
 	if typeof(ignoreobject) ~= 'Instance' then
-		local ignorelist = {camera, lplr.Character}
-		for _, v in entitylib.List do
-			if v.Targetable then
-				table.insert(ignorelist, v.Character)
-			end
+		local ignorelist = {camera, LocalPlayer.Character}
+		for _, v in ipairs(entitylib.List) do
+			if v.Targetable then table.insert(ignorelist, v.Character) end
 		end
-
 		if typeof(ignoreobject) == 'table' then
-			for _, v in ignoreobject do
-				table.insert(ignorelist, v)
-			end
+			for _, v in ipairs(ignoreobject) do table.insert(ignorelist, v) end
 		end
-
 		ignoreobject = entitylib.IgnoreObject
 		ignoreobject.FilterDescendantsInstances = ignorelist
 	end
-	return workspace.Raycast(workspace, origin, (position - origin), ignoreobject)
-end
-
-entitylib.EntityMouse = function(entitysettings)
-	if not entitylib:IsAlive() then return end
-
-	local camera = getGameCamera()
-	local mouseLocation = entitysettings.MouseOrigin or getMousePosition()
-	local sortingTable = {}
-
-	for _, v in entitylib.List do
-		if not v.Targetable then continue end
-
-		local pos, vis = camera:WorldToViewportPoint(v[entitysettings.Part].Position)
-		if not vis then continue end
-
-		local mag = (mouseLocation - Vector2.new(pos.X, pos.Y)).Magnitude
-		if mag > entitysettings.Range then continue end
-
-		if entitylib.isVulnerable(v) then
-			table.insert(sortingTable,{
-				Entity = v,
-				Magnitude = mag
-			})
-		end
-	end
-
-	table.sort(sortingTable,function(a,b)
-		return a.Magnitude < b.Magnitude
-	end)
-
-	if sortingTable[1] then
-		return sortingTable[1].Entity
-	end
+	return workspace:Raycast(origin, (position - origin), ignoreobject)
 end
 
 entitylib.EntityPosition = function(entitysettings)
 	if entitylib.isAlive then
-		local localPosition, sortingTable = entitysettings.Origin or Players.LocalPlayer.Character.HumanoidRootPart.Position, {}
-		for _, v in entitylib.List do
+		local localPosition = entitysettings.Origin or LocalPlayer.Character.HumanoidRootPart.Position
+		local sortingTable = {}
+		for _, v in ipairs(entitylib.List) do
 			if not entitysettings.Players and v.Player then continue end
 			if not entitysettings.NPCs and v.NPC then continue end
 			if not v.Targetable then continue end
 			local mag = (v[entitysettings.Part].Position - localPosition).Magnitude
 			if mag > entitysettings.Range then continue end
 			if entitylib.isVulnerable(v) then
-				table.insert(sortingTable, {
-					Entity = v,
-					Magnitude = v.Target and -1 or mag
-				})
+				table.insert(sortingTable, { Entity = v, Magnitude = v.Target and -1 or mag })
 			end
 		end
 
-		table.sort(sortingTable, entitysettings.Sort or function(a, b)
-			return a.Magnitude < b.Magnitude
-		end)
+		table.sort(sortingTable, entitysettings.Sort or function(a, b) return a.Magnitude < b.Magnitude end)
 
-		for _, v in sortingTable do
+		for _, v in ipairs(sortingTable) do
 			if entitysettings.Wallcheck then
 				if entitylib.Wallcheck(localPosition, v.Entity[entitysettings.Part].Position, entitysettings.Wallcheck) then continue end
 			end
-			table.clear(entitysettings)
-			table.clear(sortingTable)
 			return v.Entity
 		end
-		table.clear(sortingTable)
 	end
-	table.clear(entitysettings)
-end
-
-entitylib.AllPosition = function(entitysettings)
-	local returned = {}
-	if entitylib.isAlive then
-		local localPosition, sortingTable = entitysettings.Origin or entitylib.character.HumanoidRootPart.Position, {}
-		for _, v in entitylib.List do
-			if not entitysettings.Players and v.Player then continue end
-			if not entitysettings.NPCs and v.NPC then continue end
-			if not v.Targetable then continue end
-			local mag = (v[entitysettings.Part].Position - localPosition).Magnitude
-			if mag > entitysettings.Range then continue end
-			if entitylib.isVulnerable(v) then
-				table.insert(sortingTable, {Entity = v, Magnitude = v.Target and -1 or mag})
-			end
-		end
-
-		table.sort(sortingTable, entitysettings.Sort or function(a, b)
-			return a.Magnitude < b.Magnitude
-		end)
-
-		for _, v in sortingTable do
-			if entitysettings.Wallcheck then
-				if entitylib.Wallcheck(localPosition, v.Entity[entitysettings.Part].Position, entitysettings.Wallcheck) then continue end
-			end
-			table.insert(returned, v.Entity)
-			if #returned >= (entitysettings.Limit or math.huge) then break end
-		end
-		table.clear(sortingTable)
-	end
-	table.clear(entitysettings)
-	return returned
 end
 
 entitylib.getEntity = function(char)
-	for i, v in entitylib.List do
+	for i, v in ipairs(entitylib.List) do
 		if v.Player == char or v.Character == char then
 			return v, i
 		end
@@ -827,21 +526,19 @@ entitylib.addEntity = function(char, plr, teamfunc)
 				TeamCheck = teamfunc
 			}
 
-			if plr == lplr then
+			if plr == LocalPlayer then
 				entitylib.character = entity
 				entitylib.isAlive = true
 				entitylib:GetEvent("LocalAdded"):Fire(entity)
 			else
 				entity.Targetable = entitylib.targetCheck(entity)
-
-				for _, v in entitylib.getUpdateConnections(entity) do
+				for _, v in ipairs(entitylib.getUpdateConnections(entity)) do
 					table.insert(entity.Connections, v:Connect(function()
 						entity.Health = hum.Health
 						entity.MaxHealth = hum.MaxHealth
 						entitylib:GetEvent("EntityUpdated"):Fire(entity)
 					end))
 				end
-
 				table.insert(entitylib.List, entity)
 				entitylib:GetEvent("EntityAdded"):Fire(entity)
 			end
@@ -854,100 +551,70 @@ entitylib.removeEntity = function(char, localcheck)
 	if localcheck then
 		if entitylib.isAlive then
 			entitylib.isAlive = false
-
 			if entitylib.character and entitylib.character.Connections then
-				for _, v in pairs(entitylib.character.Connections) do
-					v:Disconnect()
-				end
+				for _, v in pairs(entitylib.character.Connections) do v:Disconnect() end
 				table.clear(entitylib.character.Connections)
 			end
-
 			entitylib:GetEvent("LocalRemoved"):Fire(entitylib.character)
 		end
 		return
 	end
-
 	if char then
 		if entitylib.EntityThreads[char] then
 			task.cancel(entitylib.EntityThreads[char])
 			entitylib.EntityThreads[char] = nil
 		end
-
 		local entity, ind = entitylib.getEntity(char)
-
 		if ind and entity then
 			if entity.Connections then
-				for _, v in pairs(entity.Connections) do
-					v:Disconnect()
-				end
+				for _, v in pairs(entity.Connections) do v:Disconnect() end
 				table.clear(entity.Connections)
 			end
-
 			table.remove(entitylib.List, ind)
 			entitylib:GetEvent("EntityRemoved"):Fire(entity)
 		end
 	end
 end
+
 entitylib.refreshEntity = function(char, plr)
 	entitylib.removeEntity(char)
 	entitylib.addEntity(char, plr)
 end
 
 entitylib.addPlayer = function(plr)
-	if plr.Character then
-		entitylib.refreshEntity(plr.Character, plr)
-	end
+	if plr.Character then entitylib.refreshEntity(plr.Character, plr) end
 	entitylib.PlayerConnections[plr] = {
-		plr.CharacterAdded:Connect(function(char)
-			entitylib.refreshEntity(char, plr)
-		end),
-		plr.CharacterRemoving:Connect(function(char)
-			entitylib.removeEntity(char, plr == lplr)
-		end),
+		plr.CharacterAdded:Connect(function(char) entitylib.refreshEntity(char, plr) end),
+		plr.CharacterRemoving:Connect(function(char) entitylib.removeEntity(char, plr == LocalPlayer) end),
 		plr:GetPropertyChangedSignal('Team'):Connect(function()
-			for _, v in entitylib.List do
+			for _, v in ipairs(entitylib.List) do
 				if v.Targetable ~= entitylib.targetCheck(v) then
 					entitylib.refreshEntity(v.Character, v.Player)
 				end
 			end
-
-			if plr == lplr then
-				entitylib.start()
-			else
-				entitylib.refreshEntity(plr.Character, plr)
-			end
+			if plr == LocalPlayer then entitylib.start() else entitylib.refreshEntity(plr.Character, plr) end
 		end)
 	}
 end
 
 entitylib.removePlayer = function(plr)
 	if entitylib.PlayerConnections[plr] then
-		for _, v in entitylib.PlayerConnections[plr] do
-			v:Disconnect()
-		end
+		for _, v in ipairs(entitylib.PlayerConnections[plr]) do v:Disconnect() end
 		table.clear(entitylib.PlayerConnections[plr])
 		entitylib.PlayerConnections[plr] = nil
 	end
-
 	if plr == LocalPlayer then
 		entitylib.removeEntity(nil, true)
 	elseif plr.Character then
 		entitylib.removeEntity(plr.Character)
 	end
 end
+
 entitylib.start = function()
-	if entitylib.Running then
-		entitylib.stop()
-	end
-	table.insert(entitylib.Connections, playersService.PlayerAdded:Connect(function(v)
-		entitylib.addPlayer(v)
-	end))
-	table.insert(entitylib.Connections, playersService.PlayerRemoving:Connect(function(v)
-		entitylib.removePlayer(v)
-	end))
-	for _, v in playersService:GetPlayers() do
-		entitylib.addPlayer(v)
-	end
+	if entitylib.Running then entitylib.stop() end
+	table.insert(entitylib.Connections, Players.PlayerAdded:Connect(function(v) entitylib.addPlayer(v) end))
+	table.insert(entitylib.Connections, Players.PlayerRemoving:Connect(function(v) entitylib.removePlayer(v) end))
+	for _, v in ipairs(Players:GetPlayers()) do entitylib.addPlayer(v) end
 	table.insert(entitylib.Connections, workspace:GetPropertyChangedSignal('CurrentCamera'):Connect(function()
 		gameCamera = workspace.CurrentCamera or workspace:FindFirstChildWhichIsA('Camera')
 	end))
@@ -955,23 +622,15 @@ entitylib.start = function()
 end
 
 entitylib.stop = function()
-	for _, v in entitylib.Connections do
-		v:Disconnect()
-	end
-	for _, v in entitylib.PlayerConnections do
-		for _, v2 in v do
-			v2:Disconnect()
-		end
+	for _, v in ipairs(entitylib.Connections) do v:Disconnect() end
+	for _, v in pairs(entitylib.PlayerConnections) do
+		for _, v2 in ipairs(v) do v2:Disconnect() end
 		table.clear(v)
 	end
 	entitylib.removeEntity(nil, true)
 	local cloned = table.clone(entitylib.List)
-	for _, v in cloned do
-		entitylib.removeEntity(v.Character)
-	end
-	for _, v in entitylib.EntityThreads do
-		task.cancel(v)
-	end
+	for _, v in ipairs(cloned) do entitylib.removeEntity(v.Character) end
+	for _, v in pairs(entitylib.EntityThreads) do task.cancel(v) end
 	table.clear(entitylib.PlayerConnections)
 	table.clear(entitylib.EntityThreads)
 	table.clear(entitylib.Connections)
@@ -979,37 +638,12 @@ entitylib.stop = function()
 	entitylib.Running = false
 end
 
-entitylib.kill = function()
-	if entitylib.Running then
-		entitylib.stop()
-	end
-	for _, v in entitylib.Events do
-		v:Destroy()
-	end
-	entitylib.IgnoreObject:Destroy()
-	loopClean(entitylib)
-end
-
-entitylib.refresh = function()
-	local cloned = table.clone(entitylib.List)
-	for _, v in cloned do
-		entitylib.refreshEntity(v.Character, v.Player)
-	end
-	table.clear(cloned)
-end
-
 entitylib.start()
 
-mainapi.Connections = mainapi.Connections or {}
-
-local nextEntityStateUpdate = 0
 table.insert(mainapi.Connections, RunService.Heartbeat:Connect(function()
-	local now = os.clock()
-	if now < nextEntityStateUpdate then return end
-	nextEntityStateUpdate = now + 0.05
-	local char = lplr.Character
+	local char = LocalPlayer.Character
 	local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-	local root = char and (char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("RootPart") or char.PrimaryPart)
+	local root = char and (char:FindFirstChild("HumanoidRootPart") or char.PrimaryPart)
 
 	if root and humanoid and humanoid.Health > 0 then
 		entitylib.character = entitylib.character or {}
@@ -1022,36 +656,9 @@ table.insert(mainapi.Connections, RunService.Heartbeat:Connect(function()
 		entitylib.isAlive = false
 	end
 end))
-mainapi.DeferredLoad = true
-mainapi.FeatureQueue = {}
-mainapi.FeatureLoadIndex = 0
-mainapi.FeatureLoadComplete = false
-shared.ModernLoading = true
-
-local textBoundsCache = {}
-
-local getfontsize = function(text, size, font)
-    local key = text .. "_" .. tostring(size) .. "_" .. tostring(font)
-
-    if textBoundsCache[key] then
-        return textBoundsCache[key]
-    end
-
-	fontsize.Text = text
-	fontsize.Size = size
-
-	if typeof(font) == "Font" then
-		fontsize.Font = font
-	end
-
-	local bounds = TextService:GetTextBoundsAsync(fontsize)
-	textBoundsCache[key] = bounds
-	return bounds
-end
 
 local function addMaid(object)
 	object.Connections = object.Connections or {}
-
 	function object:Clean(callback)
 		if typeof(callback) == 'Instance' then
 			table.insert(self.Connections, {
@@ -1061,400 +668,1378 @@ local function addMaid(object)
 				end
 			})
 		elseif type(callback) == 'function' then
-			table.insert(self.Connections, {
-				Disconnect = callback
-			})
+			table.insert(self.Connections, { Disconnect = callback })
 		else
 			table.insert(self.Connections, callback)
 		end
 	end
 end
-
 addMaid(mainapi)
 
-local uipallet = {
-    MainColor = Color3.fromRGB(0, 0, 0);
-    SecondaryColor = Color3.fromRGB(255, 255, 255);
-}
-
-local function getBlendFactor(vec)
-    return math.sin(DateTime.now().UnixTimestampMillis / 600 + vec.X * 0.005 + vec.Y * 0.06) * 0.5 + 0.5
-end
-
-function mainapi:GetColor(vec)
-    local blend = getBlendFactor(vector.create(vec.x,0))
-    if uipallet.ThirdColor then
-        if blend <= 0.5 then
-            return uipallet.MainColor:Lerp(uipallet.SecondaryColor, blend * 2)
+local function makeMultiTable(val)
+    local dict = {}
+    if type(val) == "table" then
+        for k, v in pairs(val) do
+            if type(k) == "string" and v == true then
+                dict[k] = true
+            elseif type(v) == "string" then
+                dict[v] = true
+            end
         end
-        return uipallet.SecondaryColor:Lerp(uipallet.ThirdColor, (blend - 0.5) * 2)
+    elseif type(val) == "string" then
+        dict[val] = true
     end
-    return uipallet.SecondaryColor:Lerp(uipallet.MainColor, blend)
+    return setmetatable(dict, {
+        __index = function(t, k)
+            return rawget(t, k) == true
+        end
+    })
 end
 
-local Gradients = {}
-local gradientUpdateInterval = 1 / 15
-local nextGradientUpdate = 0
-
-local function addGradient(parent)
-    local UIGradient = Instance.new('UIGradient')
-    table.insert(Gradients, UIGradient)
-    UIGradient.Parent = parent
-    return UIGradient
-end
-
-local lplr = Players.LocalPlayer
-
-local function updateChar()
-    local char = lplr.Character
-    if not char then
-        entitylib.isAlive = false
-        entitylib.character = nil
-        return
-    end
-
-    local root = char:FindFirstChild("HumanoidRootPart")
-    local hum = char:FindFirstChildOfClass("Humanoid")
-
-    if root and hum and hum.Health > 0 then
-        entitylib.isAlive = true
-        entitylib.character = {
-            Character = char,
-            RootPart = root,
-            Humanoid = hum,
-            HipHeight = hum.HipHeight or 2
-        }
-    else
-        entitylib.isAlive = false
-        entitylib.character = nil
-    end
-end
-
-updateChar()
-
-table.insert(mainapi.Connections, lplr.CharacterAdded:Connect(function()
-    task.wait(1)
-    updateChar()
-end))
-
-local nextCharUpdate = 0
-table.insert(mainapi.Connections, RunService.Heartbeat:Connect(function()
-    local now = os.clock()
-    if now < nextCharUpdate then return end
-    nextCharUpdate = now + 0.25
-    updateChar()
-end))
-
-if shared.Modern then
-    shared.Modern:Uninject()
-end
-
-mainapi.Libraries = {
-	entitylib = entitylib;
-	getfontsize = getfontsize;
-	uipallet = uipallet;
-    addGradient = addGradient;
-}
-
-local SoundEffect = Instance.new("Sound")
-SoundEffect.SoundId = "rbxassetid://137273815815490"
-SoundEffect.TimePosition = 0.21
-SoundEffect.PlayOnRemove = true
-
--- Rayfield UI 초기화 로드
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local okRay, rayLib = pcall(function()
+    return loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+end)
+local Rayfield = (okRay and rayLib) or loadstring(game:HttpGet('https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua'))()
 
 local Window = Rayfield:CreateWindow({
-    Name = "Lion UI (Converted to Rayfield)",
-    LoadingTitle = "Lion Interface Suite",
-    LoadingSubtitle = "by Modern",
+    Name = "Lion UI | Modern Suite",
+    LoadingTitle = "Lion UI Client",
+    LoadingSubtitle = "Powered by Rayfield",
     ConfigurationSaving = {
         Enabled = true,
         FolderName = "Overlay",
-        FileName = "config"
+        FileName = "LionConfig"
     },
     Discord = {
-        Enabled = false,
-        Invite = "noinvitelink",
-        RememberJoins = true
+        Enabled = false
     },
-    KeySystem = false,
+    KeySystem = false
 })
 
-local Tabs = {
-    Main = Window:CreateTab("Combat", 4483362458),
+local RayTabs = {
+    Combat = Window:CreateTab("Combat", 4483362458),
+    Render = Window:CreateTab("Visuals", 4483362458),
+    Movement = Window:CreateTab("Movement", 4483362458),
+    Player = Window:CreateTab("Player", 4483362458),
     World = Window:CreateTab("World", 4483362458),
-    Esp = Window:CreateTab("ESP", 4483362458),
-    Visuals = Window:CreateTab("Visuals", 4483362458),
-    Character = Window:CreateTab("Character", 4483362458),
-    Misc = Window:CreateTab("Other", 4483362458),
+    Other = Window:CreateTab("Misc", 4483362458),
     Settings = Window:CreateTab("Settings", 4483362458),
 }
 
--- Settings Tab - Unload 버튼
-Tabs.Settings:CreateButton({
-    Name = "Unload / Exit",
+RayTabs.Settings:CreateButton({
+    Name = "Unload Modern Client",
     Callback = function()
         Rayfield:Destroy()
         mainapi:Uninject()
     end
 })
 
--- 카탈로그 시스템 호환을 위한 래퍼 함수 정의
 function mainapi:AddCatalog(arg)
-    local name = arg["Name"]
-    local targetTab = Tabs.Main
-    if name == "Render" then targetTab = Tabs.Visuals
-    elseif name == "Movement" then targetTab = Tabs.Character
-    elseif name == "Player" then targetTab = Tabs.Esp
-    elseif name == "Other" then targetTab = Tabs.Misc
-    elseif name == "Combat" then targetTab = Tabs.Main end
+    local catalogName = arg["Name"] or "Misc"
+    local targetTab = RayTabs[catalogName] or RayTabs.Other
 
-    return {
-        Name = name,
-        Modules = {},
-        AddModule = function(self, modArg)
-            local modName = modArg["Name"]
-            local enabledFlag = modArg["Enabled"] or modArg["Default"] or false
-            local func = modArg["Function"] or function() end
+    local Catalog = {
+        Name = catalogName,
+        Modules = {}
+    }
 
-            local section = targetTab:CreateSection(modName)
-            local Module = {
-                Name = modName,
-                Enabled = enabledFlag,
-                Function = func,
-                Settings = {}
+    function Catalog:AddModule(modArg)
+        local moduleName = modArg["Name"] or "Unnamed"
+        local hideEnabled = modArg["HideEnabled"] or modArg["NoEnabled"] or false
+        local defaultEnabled = modArg["Enabled"] or modArg["Default"] or false
+        local func = modArg["Function"] or function() end
+
+        local Module = {
+            Name = moduleName,
+            Enabled = hideEnabled or defaultEnabled,
+            Function = func,
+            Settings = {},
+            Connections = {},
+            Bind = nil,
+            Colors = modArg["Colors"] or (modArg["Color"] and {modArg["Color"]}) or {Color3.new(1,1,1), Color3.new(1,1,1), Color3.new(1,1,1)},
+            ColorTransparency = modArg["ColorTransparency"] or {0, 0, 0},
+            Value = modArg["Color"] or Color3.fromRGB(255, 255, 255),
+            Frame = {Visible = true}
+        }
+        addMaid(Module)
+
+        targetTab:CreateSection(moduleName)
+
+        local mainToggle
+        if not hideEnabled then
+            mainToggle = targetTab:CreateToggle({
+                Name = "Enable " .. moduleName,
+                CurrentValue = defaultEnabled,
+                Flag = "Mod_" .. catalogName .. "_" .. moduleName,
+                Callback = function(val)
+                    if Module.Enabled == val then return end
+                    Module.Enabled = val
+                    if not val then
+                        for _, v in pairs(Module.Connections) do pcall(function() v:Disconnect() end) end
+                        table.clear(Module.Connections)
+                    end
+                    task.spawn(function()
+                        pcall(Module.Function, val)
+                    end)
+                    pcall(SaveConfig)
+                end
+            })
+        end
+
+        function Module:Toggle(val)
+            if val == nil then val = not Module.Enabled end
+            Module.Enabled = val
+            if mainToggle then
+                pcall(function() mainToggle:Set(val) end)
+            else
+                task.spawn(Module.Function, val)
+            end
+        end
+
+        function Module:SetBind(key)
+            Module.Bind = key
+        end
+
+        function Module:AddToggle(optArg)
+            local optName = optArg["Text"] or optArg["Name"] or "Option"
+            local optDef = optArg["Enabled"] or optArg["Default"] or false
+            local optFunc = optArg["Function"] or optArg["function"] or function() end
+
+            local ToggleObj = {
+                Name = optName,
+                Enabled = optDef,
+                Value = optArg["Color"] or Color3.fromRGB(255, 255, 255),
+                Colors = optArg["Colors"] or (optArg["Color"] and {optArg["Color"]}) or {Color3.new(1,1,1), Color3.new(1,1,1), Color3.new(1,1,1)},
+                ColorTransparency = optArg["ColorTransparency"] or {0, 0, 0},
+                Frame = {Visible = true},
+                Function = optFunc
             }
 
-            local toggle = targetTab:CreateToggle({
-                Name = "Enable " .. modName,
-                CurrentValue = enabledFlag,
-                Flag = modName .. "_Toggle",
+            local subToggle = targetTab:CreateToggle({
+                Name = optName,
+                CurrentValue = optDef,
+                Flag = "Opt_" .. moduleName .. "_" .. optName,
                 Callback = function(val)
-                    Module.Enabled = val
+                    ToggleObj.Enabled = val
                     task.spawn(function()
-                        pcall(func, val)
+                        pcall(ToggleObj.Function, val)
                     end)
                     pcall(SaveConfig)
                 end
             })
 
-            function Module:Toggle(val)
-                if val == nil then val = not Module.Enabled end
-                toggle:Set(val)
+            function ToggleObj:Toggle(val)
+                if val == nil then val = not ToggleObj.Enabled end
+                ToggleObj.Enabled = val
+                pcall(function() subToggle:Set(val) end)
             end
 
-            function Module:SetBind(key)
-                Module.Bind = key
+            function ToggleObj:Save(tab)
+                tab[optName] = { Enabled = ToggleObj.Enabled }
+            end
+            function ToggleObj:Load(tab)
+                if tab and tab.Enabled ~= nil then
+                    ToggleObj:Toggle(tab.Enabled)
+                end
             end
 
-            function Module:AddToggle(optArg)
-                local optName = optArg["Name"] or optArg["Text"] or "Option"
-                local optDef = optArg["Enabled"] or optArg["Default"] or false
-                local optFunc = optArg["Function"] or optArg["function"] or function() end
-
-                local subToggle = targetTab:CreateToggle({
-                    Name = optName,
-                    CurrentValue = optDef,
-                    Flag = modName .. "_" .. optName,
-                    Callback = function(val)
-                        task.spawn(function()
-                            pcall(optFunc, val)
-                        end)
+            if optArg.Colors and #optArg.Colors > 0 then
+                for idx, col in ipairs(optArg.Colors) do
+                    targetTab:CreateColorPicker({
+                        Name = optName .. " Color " .. tostring(idx),
+                        Color = col,
+                        Flag = "Col_" .. moduleName .. "_" .. optName .. "_" .. tostring(idx),
+                        Callback = function(newCol)
+                            ToggleObj.Colors[idx] = newCol
+                            ToggleObj.Value = ToggleObj.Colors[1]
+                        end
+                    })
+                end
+            elseif optArg.Color then
+                targetTab:CreateColorPicker({
+                    Name = optName .. " Color",
+                    Color = optArg.Color,
+                    Flag = "Col_" .. moduleName .. "_" .. optName,
+                    Callback = function(newCol)
+                        ToggleObj.Value = newCol
+                        ToggleObj.Colors = {newCol, newCol, newCol}
                     end
                 })
-
-                local settingObj = {
-                    Name = optName,
-                    Enabled = optDef,
-                    Toggle = function(_, v) subToggle:Set(v) end,
-                    Save = function(_, tab) tab[optName] = {Enabled = subToggle.CurrentValue} end,
-                    Load = function(_, tab) if tab and tab.Enabled ~= nil then subToggle:Set(tab.Enabled) end end
-                }
-                Module.Settings[optName] = settingObj
-                return settingObj
             end
 
-            function Module:AddSlider(optArg)
-                local optName = optArg["Name"] or "Value"
-                local minVal = optArg["Min"] or optArg["min"] or 0
-                local maxVal = optArg["Max"] or optArg["max"] or 100
-                local defVal = optArg["default"] or optArg["Default"] or optArg["Value"] or minVal
-                local optFunc = optArg["Function"] or optArg["function"] or function() end
-
-                local subSlider = targetTab:CreateSlider({
-                    Name = optName,
-                    Range = {minVal, maxVal},
-                    Increment = optArg["Decimal"] or 1,
-                    Suffix = optArg["Suffix"] or "",
-                    CurrentValue = defVal,
-                    Flag = modName .. "_" .. optName,
-                    Callback = function(val)
-                        task.spawn(function()
-                            pcall(optFunc, val)
-                        end)
-                    end
-                })
-
-                local settingObj = {
-                    Name = optName,
-                    Value = defVal,
-                    Save = function(_, tab) tab[optName] = {Value = subSlider.CurrentValue} end,
-                    Load = function(_, tab) if tab and tab.Value ~= nil then subSlider:Set(tab.Value) end end
-                }
-                Module.Settings[optName] = settingObj
-                return settingObj
-            end
-
-            function Module:AddDropdown(optArg)
-                local optName = optArg["Name"] or "Value"
-                local list = optArg["List"] or optArg["Values"] or {}
-                local defVal = optArg["Default"] or optArg["Value"] or list[1]
-                local optFunc = optArg["Function"] or optArg["function"] or function() end
-
-                local subDrop = targetTab:CreateDropdown({
-                    Name = optName,
-                    Options = list,
-                    CurrentOption = defVal,
-                    Flag = modName .. "_" .. optName,
-                    Callback = function(val)
-                        task.spawn(function()
-                            pcall(optFunc, val)
-                        end)
-                    end
-                })
-
-                local settingObj = {
-                    Name = optName,
-                    Value = defVal,
-                    Save = function(_, tab) tab[optName] = {Value = subDrop.CurrentValue} end,
-                    Load = function(_, tab) if tab and tab.Value ~= nil then subDrop:Set(tab.Value) end end
-                }
-                Module.Settings[optName] = settingObj
-                return settingObj
-            end
-
-            function Module:AddDropdown2(optArg) return self:AddDropdown(optArg) end
-
-            function Module:AddInputBox(optArg)
-                local optName = optArg["Name"] or optArg["Text"] or "Input"
-                local defVal = optArg["Default"] or optArg["Value"] or ""
-                local optFunc = optArg["Function"] or optArg["function"] or function() end
-
-                local subInput = targetTab:CreateInput({
-                    Name = optName,
-                    PlaceholderText = optArg["Placeholder"] or "",
-                    CurrentValue = tostring(defVal),
-                    Flag = modName .. "_" .. optName,
-                    Callback = function(val)
-                        task.spawn(function()
-                            pcall(optFunc, val)
-                        end)
-                    end
-                })
-
-                local settingObj = {
-                    Name = optName,
-                    Value = defVal,
-                    Save = function(_, tab) tab[optName] = {Value = subInput.CurrentValue} end,
-                    Load = function(_, tab) if tab and tab.Value ~= nil then subInput:Set(tostring(tab.Value)) end end
-                }
-                Module.Settings[optName] = settingObj
-                return settingObj
-            end
-
-            function Module:AddLabel(optArg)
-                local text = type(optArg) == "table" and (optArg["Text"] or "") or tostring(optArg or "")
-                targetTab:CreateLabel(text)
-            end
-
-            function Module:AddColorPicker(optArg)
-                local optName = optArg["Name"] or optArg["Text"] or "Color"
-                local defVal = optArg["Default"] or optArg["Value"] or Color3.fromRGB(255, 255, 255)
-                local optFunc = optArg["Function"] or optArg["function"] or function() end
-                
-                -- Rayfield는 기본적으로 컬러피커를 지원하므로 라벨 혹은 토글 형태로 연동
-                targetTab:CreateLabel(optName .. " (Color Picker Configured)")
-            end
-
-            function Module:AddButton(optArg)
-                local text = typeof(optArg) == "table" and (optArg["Text"] or optArg["Name"] or "Button") or tostring(optArg)
-                local func = typeof(optArg) == "table" and (optArg["Func"] or optArg["Function"] or function() end) or function() end
-
-                targetTab:CreateButton({
-                    Name = text,
-                    Callback = func
-                })
-            end
-
-            mainapi.Modules[modName] = Module
-            return Module
+            Module.Settings[optName] = ToggleObj
+            return ToggleObj
         end
-    }
+
+        function Module:AddSlider(optArg)
+            local optName = optArg["Text"] or optArg["Name"] or "Slider"
+            local minVal = optArg["Min"] or optArg["min"] or 0
+            local maxVal = optArg["Max"] or optArg["max"] or 100
+            local defVal = optArg["default"] or optArg["Default"] or optArg["Value"] or minVal
+            local optFunc = optArg["Function"] or optArg["function"] or function() end
+            local decimal = optArg["Decimal"] or optArg["decimal"] or 1
+            local step = decimal > 1 and (1 / decimal) or 1
+            if decimal < 1 then step = decimal end
+
+            local SliderObj = {
+                Name = optName,
+                Min = minVal,
+                Max = maxVal,
+                Value = defVal,
+                Suffix = optArg["Suffix"] or "",
+                Frame = {Visible = true},
+                Object = {Visible = true},
+                Function = optFunc
+            }
+
+            local subSlider = targetTab:CreateSlider({
+                Name = optName,
+                Range = {minVal, maxVal},
+                Increment = step,
+                Suffix = typeof(optArg["Suffix"]) == "string" and optArg["Suffix"] or "",
+                CurrentValue = defVal,
+                Flag = "Sld_" .. moduleName .. "_" .. optName,
+                Callback = function(val)
+                    SliderObj.Value = val
+                    task.spawn(function()
+                        pcall(SliderObj.Function, val)
+                    end)
+                    pcall(SaveConfig)
+                end
+            })
+
+            function SliderObj:Save(tab)
+                tab[optName] = { Value = SliderObj.Value }
+            end
+            function SliderObj:Load(tab)
+                if tab and tab.Value ~= nil then
+                    SliderObj.Value = tab.Value
+                    pcall(function() subSlider:Set(tab.Value) end)
+                end
+            end
+
+            Module.Settings[optName] = SliderObj
+            return SliderObj
+        end
+
+        local function setupDropdown(optArg)
+            local optName = optArg["Text"] or optArg["Name"] or "Dropdown"
+            local list = optArg["List"] or optArg["Values"] or {}
+            local defVal = optArg["Default"] or optArg["Value"] or list[1]
+            local optFunc = optArg["Function"] or optArg["function"] or function() end
+            local isMulti = optArg["Multi"] == true
+
+            local DropdownObj = {
+                Name = optName,
+                List = list,
+                Value = isMulti and makeMultiTable(defVal) or defVal,
+                Multi = isMulti,
+                Frame = {Visible = true},
+                Function = optFunc
+            }
+
+            local rayDef
+            if isMulti then
+                rayDef = {}
+                if type(defVal) == "table" then
+                    for k, v in pairs(defVal) do
+                        if v == true then table.insert(rayDef, k) elseif type(v) == "string" then table.insert(rayDef, v) end
+                    end
+                end
+            else
+                rayDef = defVal
+            end
+
+            local subDropdown = targetTab:CreateDropdown({
+                Name = optName,
+                Options = list,
+                CurrentOption = rayDef,
+                MultipleOptions = isMulti,
+                Flag = "Drp_" .. moduleName .. "_" .. optName,
+                Callback = function(selected)
+                    if isMulti then
+                        DropdownObj.Value = makeMultiTable(selected)
+                        task.spawn(function() pcall(DropdownObj.Function, DropdownObj.Value) end)
+                    else
+                        local val = type(selected) == "table" and selected[1] or selected
+                        DropdownObj.Value = val
+                        task.spawn(function() pcall(DropdownObj.Function, val) end)
+                    end
+                    pcall(SaveConfig)
+                end
+            })
+
+            function DropdownObj:SetList(newList)
+                DropdownObj.List = newList or {}
+                pcall(function() subDropdown:Refresh(DropdownObj.List) end)
+            end
+
+            function DropdownObj:Save(tab)
+                tab[optName] = { Value = DropdownObj.Value }
+            end
+            function DropdownObj:Load(tab)
+                if tab and tab.Value ~= nil then
+                    DropdownObj.Value = isMulti and makeMultiTable(tab.Value) or tab.Value
+                    pcall(function() subDropdown:Set(tab.Value) end)
+                end
+            end
+
+            Module.Settings[optName] = DropdownObj
+            return DropdownObj
+        end
+
+        function Module:AddDropdown(optArg) return setupDropdown(optArg) end
+        function Module:AddDropdown2(optArg) return setupDropdown(optArg) end
+
+        function Module:AddInputBox(optArg)
+            local optName = optArg["Text"] or optArg["Name"] or "Input"
+            local defVal = optArg["Default"] or optArg["Value"] or ""
+            local optFunc = optArg["Function"] or optArg["function"] or function() end
+
+            local InputObj = {
+                Name = optName,
+                Value = defVal,
+                Frame = {Visible = true},
+                Function = optFunc
+            }
+
+            local subInput = targetTab:CreateInput({
+                Name = optName,
+                PlaceholderText = optArg["Placeholder"] or optArg["PlaceholderText"] or "",
+                RemoveTextAfterFocusLost = false,
+                CurrentValue = tostring(defVal),
+                Flag = "Inp_" .. moduleName .. "_" .. optName,
+                Callback = function(text)
+                    InputObj.Value = text
+                    task.spawn(function() pcall(InputObj.Function, text) end)
+                    pcall(SaveConfig)
+                end
+            })
+
+            function InputObj:Save(tab)
+                tab[optName] = { Value = InputObj.Value }
+            end
+            function InputObj:Load(tab)
+                if tab and tab.Value ~= nil then
+                    InputObj.Value = tab.Value
+                    pcall(function() subInput:Set(tostring(tab.Value)) end)
+                end
+            end
+
+            Module.Settings[optName] = InputObj
+            return InputObj
+        end
+
+        function Module:AddLabel(optArg)
+            local text = type(optArg) == "table" and (optArg["Text"] or "") or tostring(optArg or "")
+            local labelObj = targetTab:CreateLabel(text)
+            return {
+                AddColorPicker = function(_, colArg)
+                    local colName = colArg["Name"] or "Color"
+                    targetTab:CreateColorPicker({
+                        Name = colName,
+                        Color = colArg["Default"] or Color3.fromRGB(255, 255, 255),
+                        Callback = colArg["Callback"] or function() end
+                    })
+                end,
+                Set = function(_, newText)
+                    pcall(function() labelObj:Set(newText) end)
+                end
+            }
+        end
+
+        function Module:AddColorPicker(optArg)
+            local optName = optArg["Text"] or optArg["Name"] or "Color"
+            local defVal = optArg["Default"] or optArg["Value"] or Color3.fromRGB(255, 255, 255)
+            local optFunc = optArg["Function"] or optArg["function"] or function() end
+
+            local ColorObj = {
+                Name = optName,
+                Value = defVal,
+                Frame = {Visible = true},
+                Function = optFunc
+            }
+
+            targetTab:CreateColorPicker({
+                Name = optName,
+                Color = defVal,
+                Flag = "Col_" .. moduleName .. "_" .. optName,
+                Callback = function(newCol)
+                    ColorObj.Value = newCol
+                    task.spawn(function() pcall(ColorObj.Function, newCol) end)
+                    pcall(SaveConfig)
+                end
+            })
+
+            Module.Settings[optName] = ColorObj
+            return ColorObj
+        end
+
+        function Module:AddButton(optArg)
+            local text = type(optArg) == "table" and (optArg["Text"] or optArg["Name"] or "Button") or tostring(optArg)
+            local func = type(optArg) == "table" and (optArg["Func"] or optArg["Function"] or function() end) or function() end
+            targetTab:CreateButton({
+                Name = text,
+                Callback = func
+            })
+        end
+
+        mainapi.Modules[moduleName] = Module
+        Catalog.Modules[moduleName] = Module
+        return Module
+    end
+
+    mainapi.Catalogs[catalogName] = Catalog
+    return Catalog
 end
 
-local Combat = mainapi:AddCatalog({ Name = 'Combat' });
-local Render = mainapi:AddCatalog({ Name = 'Render' });
-local Movement = mainapi:AddCatalog({ Name = 'Movement' });
-local Player = mainapi:AddCatalog({ Name = 'Player' });
-local Other = mainapi:AddCatalog({ Name = 'Other' });
-
---// Interface 로드
-run(function()
-    local Interface = Other:AddModule({
-        Name = "Interface",
-        Function = function(callback)
-            if not callback then
-                Interface:Toggle()
-            end
-        end
-    })
-    Interface:Toggle()
-end)
-
 function mainapi:Notify(arg)
-    Rayfield:Notify({
-        Title = "Modern Client",
-        Content = arg["Text"] or "None",
-        Duration = arg["Duration"] or 2,
-        Image = 4483362458,
-    })
+    pcall(function()
+        Rayfield:Notify({
+            Title = arg["Title"] or "Modern Client",
+            Content = arg["Text"] or "Notification",
+            Duration = arg["Duration"] or arg["Durn"] or 2,
+            Image = 4483362458
+        })
+    end)
 end
 
 function mainapi:SafeNotify(arg)
     task.spawn(function()
-        pcall(function()
-            mainapi:Notify(arg)
-        end)
+        mainapi:Notify(arg)
     end)
+end
+
+local run = function(func)
+    task.spawn(func)
 end
 
 function mainapi:Uninject()
     mainapi:Save()
     pcall(setMenuBlur, false)
     mainapi.Loaded = nil
-    for _, v in self.Modules do
+    for _, v in pairs(self.Modules) do
 		if v.Enabled then
-			v:Toggle()
+			pcall(function() v:Toggle(false) end)
 		end
 	end
-    for _, v in mainapi.Connections do
-		pcall(function()
-			v:Disconnect()
-		end)
+    for _, v in pairs(mainapi.Connections) do
+		pcall(function() v:Disconnect() end)
 	end
+    mainapi.MainScreenGui:ClearAllChildren()
+    mainapi.MainScreenGui:Destroy()
     table.clear(mainapi.Libraries)
     loopClean(mainapi)
     shared.Modern = nil
 end
 
 function mainapi:SendChat(Text)
-    game:GetService("TextChatService").TextChannels.RBXSystem:DisplaySystemMessage("<b><font color = \"rgb(150, 150, 150)\">[</font><font color = \"rgb(84, 140, 209)\">Modern Client</font><font color = \"rgb(150, 150, 150)\">]</font></b>: "..Text)
+    pcall(function()
+        game:GetService("TextChatService").TextChannels.RBXSystem:DisplaySystemMessage("<b><font color = \"rgb(150, 150, 150)\">[</font><font color = \"rgb(84, 140, 209)\">Modern Client</font><font color = \"rgb(150, 150, 150)\">]</font></b>: "..Text)
+    end)
 end
 
-mainapi:StartBackgroundLoad()
-task.defer(function()
-    _savingConfig = false
+local function Bind(message)
+    if message.TextSource and message.Status == Enum.TextChatMessageStatus.Sending then
+        if message.Text:find('^.bind') then
+            local Text = message.Text:split(' ')
+            local keycode
+            pcall(function() keycode = Enum.KeyCode[Text[3]] end)
+            if Text[2] then Text[2] = Text[2]:gsub("_", " ") end
+			if #Text == 3 and keycode and mainapi.Modules[Text[2]] then
+                mainapi.Modules[Text[2]]:SetBind(keycode)
+                mainapi:SendChat(Text[2].." bound to "..Text[3])
+            else
+                mainapi:SendChat("Error binding key")
+            end
+			message.Text = ""
+		elseif message.Text:find('^.clearbind') or message.Text:find('^.unbind') then
+            local Text = message.Text:split(' ')
+            if Text[2] then Text[2] = Text[2]:gsub("_", " ") end
+            if #Text == 2 and mainapi.Modules[Text[2]] then
+                mainapi.Modules[Text[2]]:SetBind(nil)
+                mainapi:SendChat("Unbound "..Text[2])
+            else
+                mainapi:SendChat("Error unbinding key")
+            end
+            message.Text = ""
+        end
+	end
+end
+
+task.spawn(function()
+    repeat
+        TextChatService.OnIncomingMessage = Bind
+        task.wait(1)
+    until not (mainapi.Loaded or shared.ModernLoading)
 end)
+
+local Combat = mainapi:AddCatalog({ Name = 'Combat' })
+local Render = mainapi:AddCatalog({ Name = 'Render' })
+local Movement = mainapi:AddCatalog({ Name = 'Movement' })
+local Player = mainapi:AddCatalog({ Name = 'Player' })
+local Other = mainapi:AddCatalog({ Name = 'Other' })
+
+run(function()
+    local Interface = Other:AddModule({
+        Name = "Interface",
+        Function = function(callback)
+            if not callback then
+                Interface:Toggle(true)
+            end
+        end
+    })
+    Interface:Toggle(true)
+end)
+
+run(function()
+    local SilentAim
+    local HitChance, HeadshotChance, AutoFire, AutoReload
+    local Manipulation, ClosestPart, Visualize, RageCircle
+    local Outline, CircleFilled, Range
+    local VisibleOnly, IgnoreProtected, IgnoreIf, DisableOnFlash
+    local LimitDistance, MaxDistance, ReactionTime, ForgetTime, TargetPart, ClosestPartBlacklist
+    local CircleObject, FillCircleObject, FillGradientObject, FillScreenGui
+    local SilentTargetPart, LockedTarget, LockedTargetPart, CandidateTarget
+    local CandidateSince = 0
+    local LastTargetSeen = 0
+
+    local R15Parts = {
+        "Head", "UpperTorso", "LowerTorso", "HumanoidRootPart",
+        "LeftUpperArm", "LeftLowerArm", "LeftHand",
+        "RightUpperArm", "RightLowerArm", "RightHand",
+        "LeftUpperLeg", "LeftLowerLeg", "LeftFoot",
+        "RightUpperLeg", "RightLowerLeg", "RightFoot",
+    }
+    local R15LimbParts = {
+        LeftUpperArm = true, LeftLowerArm = true, LeftHand = true,
+        RightUpperArm = true, RightLowerArm = true, RightHand = true,
+        LeftUpperLeg = true, LeftLowerLeg = true, LeftFoot = true,
+        RightUpperLeg = true, RightLowerLeg = true, RightFoot = true,
+    }
+
+    local rs = cloneref(game:GetService("ReplicatedStorage"))
+    local ps = cloneref(game:GetService("Players"))
+    local lplr = ps.LocalPlayer
+    local cam = workspace.CurrentCamera
+    local util = require(rs.Modules.Utility)
+    local enums = require(rs.Modules.EnumLibrary)
+
+    local oldFireServer
+    local silentHookInstalled = false
+    local rand = Random.new()
+
+    local function removeCircle()
+        if CircleObject then
+            pcall(function() CircleObject.Visible = false CircleObject:Remove() end)
+            CircleObject = nil
+        end
+        if FillCircleObject then
+            pcall(function() FillCircleObject.Visible = false FillCircleObject:Destroy() end)
+            FillCircleObject = nil
+            FillGradientObject = nil
+        end
+        if FillScreenGui then
+            pcall(function() FillScreenGui:Destroy() end)
+            FillScreenGui = nil
+        end
+    end
+
+    local function ensureCircle()
+        if not FillCircleObject then
+            FillScreenGui = Instance.new("ScreenGui")
+            FillScreenGui.Name = "__LionSilentFOVFill"
+            FillScreenGui.IgnoreGuiInset = true
+            FillScreenGui.ResetOnSpawn = false
+            FillScreenGui.DisplayOrder = 1000000
+            FillScreenGui.Parent = lplr:WaitForChild("PlayerGui")
+
+            FillCircleObject = Instance.new("Frame")
+            FillCircleObject.AnchorPoint = Vector2.new(0.5, 0.5)
+            FillCircleObject.BackgroundColor3 = Color3.new(1, 1, 1)
+            FillCircleObject.BorderSizePixel = 0
+            FillCircleObject.Visible = false
+            FillCircleObject.Parent = FillScreenGui
+
+            local corner = Instance.new("UICorner")
+            corner.CornerRadius = UDim.new(1, 0)
+            corner.Parent = FillCircleObject
+
+            FillGradientObject = Instance.new("UIGradient")
+            FillGradientObject.Parent = FillCircleObject
+        end
+
+        if not CircleObject and Drawing then
+            CircleObject = Drawing.new("Circle")
+            CircleObject.Filled = false
+            CircleObject.Color = Color3.fromRGB(255, 255, 255)
+            CircleObject.Radius = Range and Range.Value or 100
+            CircleObject.Transparency = 1
+            CircleObject.Thickness = 2
+            CircleObject.Visible = false
+        end
+    end
+
+    local function getFighter()
+        local ok, fighter = pcall(function()
+            return require(lplr.PlayerScripts.Controllers.FighterController)
+        end)
+        return (ok and fighter) and fighter.LocalFighter or nil
+    end
+
+    local function getFOVOrigin()
+        local camera = workspace.CurrentCamera or cam
+        if camera then
+            local viewport = camera.ViewportSize
+            return Vector2.new(viewport.X / 2, viewport.Y / 2)
+        end
+        return UserInputService:GetMouseLocation()
+    end
+
+    local function getAimParts(char)
+        local parts = {}
+        if not char then return parts end
+        local blacklist = ClosestPartBlacklist and ClosestPartBlacklist.Value or {}
+        for _, name in ipairs(R15Parts) do
+            if not blacklist[name] then
+                local part = char:FindFirstChild(name)
+                if part and part:IsA("BasePart") then
+                    table.insert(parts, part)
+                end
+            end
+        end
+        return parts
+    end
+
+    local function getClosestPart(char, origin)
+        local best, dist = nil, math.huge
+        for _, part in ipairs(getAimParts(char)) do
+            local pos, visible = cam:WorldToViewportPoint(part.Position)
+            if visible then
+                local d = (Vector2.new(pos.X, pos.Y) - origin).Magnitude
+                if d < dist then
+                    best, dist = part, d
+                end
+            end
+        end
+        return best, dist
+    end
+
+    local function canSeeTarget(target)
+        if not entitylib:IsAlive() or not target or not target:FindFirstChild("Head") then return false end
+        local myPos = cam.CFrame.Position
+        local targetPos = target.Head.Position
+        local rayParams = RaycastParams.new()
+        rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+        rayParams.FilterDescendantsInstances = {lplr.Character, target, cam}
+        local ray = workspace:Raycast(myPos, targetPos - myPos, rayParams)
+        return not ray or ray.Instance:IsDescendantOf(target)
+    end
+
+    local function shouldIgnoreTarget(target)
+        local root = target and target:FindFirstChild("HumanoidRootPart")
+        local hum = target and target:FindFirstChildOfClass("Humanoid")
+        if not root or not hum or hum.Health <= 0 then return true end
+        if VisibleOnly and VisibleOnly.Enabled and not canSeeTarget(target) then return true end
+        if LimitDistance and LimitDistance.Enabled then
+            local myRoot = lplr.Character and lplr.Character:FindFirstChild("HumanoidRootPart")
+            if not myRoot or (root.Position - myRoot.Position).Magnitude > (MaxDistance and MaxDistance.Value or 250) then
+                return true
+            end
+        end
+        return false
+    end
+
+    local function getTarget()
+        SilentTargetPart = nil
+        if isShootingRange() then return nil end
+        local mouse = getFOVOrigin()
+        local maxRange = (RageCircle and RageCircle.Enabled) and (Range and Range.Value or 100) or math.huge
+        local best, dist = nil, maxRange
+
+        for _, v in ipairs(ps:GetPlayers()) do
+            if v ~= lplr and v.Character and not shouldIgnoreTarget(v.Character) then
+                local fixedPart = v.Character:FindFirstChild(TargetPart and TargetPart.Value or "Head")
+                local part = (ClosestPart and ClosestPart.Enabled) and getClosestPart(v.Character, mouse) or fixedPart
+                if part then
+                    local pos, vis = cam:WorldToViewportPoint(part.Position)
+                    if vis then
+                        local d = (Vector2.new(pos.X, pos.Y) - mouse).Magnitude
+                        if d < dist then
+                            best = v.Character
+                            SilentTargetPart = part
+                            dist = d
+                        end
+                    end
+                end
+            end
+        end
+        return best
+    end
+
+    local function buildManipulationCameraData(fromPos, part)
+        if not util or not part then return nil end
+        local velocity = part.AssemblyLinearVelocity or part.Velocity or Vector3.zero
+        local lead = math.clamp(velocity.Magnitude / 350, 0, 0.12)
+        local aimPosition = part.Position + velocity * lead
+        local look = CFrame.new(fromPos, aimPosition)
+        local data = {}
+        data[utf8.char(1)] = {
+            [utf8.char(0)] = util:EncodeCFrame(look),
+            [utf8.char(1)] = util:EncodeCFrame(look),
+            [utf8.char(2)] = part,
+            [utf8.char(3)] = util:EncodeCFrame(part.CFrame:ToObjectSpace(CFrame.new(aimPosition)))
+        }
+        return data
+    end
+
+    local function getUseItemRemote()
+        local remotes = rs:FindFirstChild("Remotes")
+        local replication = remotes and remotes:FindFirstChild("Replication")
+        local fighter = replication and replication:FindFirstChild("Fighter")
+        return fighter and fighter:FindFirstChild("UseItem")
+    end
+
+    SilentAim = Combat:AddModule({
+        Name = 'Silent Aim',
+        Function = function(callback)
+            if callback then
+                if RageCircle and RageCircle.Enabled then ensureCircle() end
+                if not silentHookInstalled then
+                    local useItemRemote = getUseItemRemote()
+                    if useItemRemote then
+                        oldFireServer = hookfunction(useItemRemote.FireServer, newcclosure(function(self, obj, action, cameradata, ...)
+                            if SilentAim.Enabled and action == enums:ToEnum("StartShooting") then
+                                if rand:NextNumber(0, 100) <= (HitChance and HitChance.Value or 100) then
+                                    local target = getTarget()
+                                    if target and SilentTargetPart then
+                                        local fromPos = cam.CFrame.Position
+                                        cameradata = buildManipulationCameraData(fromPos, SilentTargetPart) or cameradata
+                                        return oldFireServer(self, obj, action, cameradata, ...)
+                                    end
+                                end
+                            end
+                            return oldFireServer(self, obj, action, cameradata, ...)
+                        end))
+                        silentHookInstalled = true
+                    end
+                end
+
+                SilentAim:Clean(RunService.RenderStepped:Connect(function()
+                    if CircleObject and RageCircle then
+                        CircleObject.Position = getFOVOrigin()
+                        CircleObject.Visible = SilentAim.Enabled and RageCircle.Enabled
+                        CircleObject.Radius = Range and Range.Value or 100
+                    end
+                end))
+            else
+                removeCircle()
+            end
+        end
+    })
+
+    VisibleOnly = SilentAim:AddToggle({ Name = 'Visible Only', Default = true })
+    IgnoreProtected = SilentAim:AddToggle({ Name = 'Ignore Protected', Default = true })
+    LimitDistance = SilentAim:AddToggle({ Name = 'Limit Distance', Default = false })
+    MaxDistance = SilentAim:AddSlider({ Name = 'Max Distance', Min = 10, Max = 1000, Default = 250, Suffix = ' studs' })
+    TargetPart = SilentAim:AddDropdown({ Name = 'Target Part', List = R15Parts, Default = 'Head' })
+    ClosestPart = SilentAim:AddToggle({ Name = 'Closest Part', Default = true })
+    ClosestPartBlacklist = SilentAim:AddDropdown({ Name = 'Part Blacklist', List = R15Parts, Default = R15LimbParts, Multi = true })
+    Manipulation = SilentAim:AddToggle({ Name = 'Manipulation', Default = true })
+    HitChance = SilentAim:AddSlider({ Name = 'Hit Chance', Min = 0, Max = 100, Default = 100, Suffix = '%' })
+    HeadshotChance = SilentAim:AddSlider({ Name = 'Headshot Chance', Min = 0, Max = 100, Default = 100, Suffix = '%' })
+    RageCircle = SilentAim:AddToggle({ Name = 'Show FOV', Default = true })
+    Range = SilentAim:AddSlider({ Name = 'FOV Radius', Min = 10, Max = 1000, Default = 150, Suffix = ' px' })
+end)
+
+run(function()
+	local ESP, Method, BoundingBox, Filled, HealthBar, Name, Weapon, DistanceText, Skeleton
+	local Reference = {}
+
+	local function setESPVisible(container, visible)
+		for _, obj in pairs(container) do
+			if type(obj) == "table" and obj.Remove == nil and obj.Visible == nil then
+				setESPVisible(obj, visible)
+			elseif obj then
+				pcall(function() obj.Visible = visible end)
+			end
+		end
+	end
+
+	local function removeESPObjects(container)
+		for _, obj in pairs(container) do
+			if type(obj) == "table" and obj.Remove == nil and obj.Visible == nil then
+				removeESPObjects(obj)
+			elseif obj then
+				pcall(function() obj.Visible = false obj:Remove() end)
+			end
+		end
+	end
+
+	local function getESPColor(ent)
+		return (ent and entitylib.getEntityColor(ent)) or Color3.fromRGB(255, 255, 255)
+	end
+
+	local function createDrawingESP(ent)
+		if not ent.Player or ent.Player == LocalPlayer then return end
+		local EntityESP = {}
+		EntityESP.Main = Drawing.new('Square')
+		EntityESP.Main.Thickness = 1
+		EntityESP.Main.Filled = false
+		EntityESP.Main.ZIndex = 2
+
+		EntityESP.Fill = Drawing.new('Square')
+		EntityESP.Fill.Thickness = 1
+		EntityESP.Fill.Filled = true
+		EntityESP.Fill.Transparency = 0.35
+		EntityESP.Fill.ZIndex = 1
+
+		EntityESP.HealthLine = Drawing.new('Line')
+		EntityESP.HealthLine.Thickness = 2
+		EntityESP.HealthLine.ZIndex = 2
+
+		EntityESP.Text = Drawing.new('Text')
+		EntityESP.Text.Size = 18
+		EntityESP.Text.Center = true
+		EntityESP.Text.Outline = true
+		EntityESP.Text.ZIndex = 3
+
+		Reference[ent] = EntityESP
+	end
+
+	local function removeDrawingESP(ent)
+		local data = Reference[ent]
+		if data then
+			removeESPObjects(data)
+			Reference[ent] = nil
+		end
+	end
+
+	ESP = Render:AddModule({
+		Name = 'ESP',
+		Function = function(callback)
+			if callback then
+				for _, v in ipairs(entitylib.List) do createDrawingESP(v) end
+				ESP:Clean(entitylib:GetEvent("EntityAdded"):Connect(createDrawingESP))
+				ESP:Clean(entitylib:GetEvent("EntityRemoved"):Connect(removeDrawingESP))
+
+				RunService:BindToRenderStep("LionRayfieldESP", 2000, function()
+					local cam = workspace.CurrentCamera
+					if not cam then return end
+
+					for ent, drawings in pairs(Reference) do
+						local root = ent.RootPart
+						if not root or not ent.Character or not ent.Character.Parent then
+							setESPVisible(drawings, false)
+							continue
+						end
+
+						local pos, vis = cam:WorldToViewportPoint(root.Position)
+						if not vis then
+							setESPVisible(drawings, false)
+							continue
+						end
+
+						local topPos = cam:WorldToViewportPoint((root.CFrame * CFrame.new(0, ent.HipHeight or 2, 0)).Position)
+						local bottomPos = cam:WorldToViewportPoint((root.CFrame * CFrame.new(0, -(ent.HipHeight or 2), 0)).Position)
+						local sizeY = math.abs(topPos.Y - bottomPos.Y)
+						local sizeX = sizeY * 0.6
+						local posX, posY = pos.X - sizeX / 2, topPos.Y
+
+						local color = getESPColor(ent)
+
+						if BoundingBox and BoundingBox.Enabled then
+							drawings.Main.Visible = true
+							drawings.Main.Color = color
+							drawings.Main.Position = Vector2.new(posX, posY)
+							drawings.Main.Size = Vector2.new(sizeX, sizeY)
+						else
+							drawings.Main.Visible = false
+						end
+
+						if Filled and Filled.Enabled then
+							drawings.Fill.Visible = true
+							drawings.Fill.Color = color
+							drawings.Fill.Position = Vector2.new(posX, posY)
+							drawings.Fill.Size = Vector2.new(sizeX, sizeY)
+						else
+							drawings.Fill.Visible = false
+						end
+
+						if HealthBar and HealthBar.Enabled then
+							local hp = math.clamp(ent.Health / ent.MaxHealth, 0, 1)
+							drawings.HealthLine.Visible = true
+							drawings.HealthLine.Color = Color3.fromHSV(hp * 0.3, 1, 1)
+							drawings.HealthLine.From = Vector2.new(posX - 4, posY + sizeY)
+							drawings.HealthLine.To = Vector2.new(posX - 4, posY + sizeY - (sizeY * hp))
+						else
+							drawings.HealthLine.Visible = false
+						end
+
+						if Name and Name.Enabled then
+							drawings.Text.Visible = true
+							drawings.Text.Color = Color3.fromRGB(255, 255, 255)
+							drawings.Text.Text = ent.Player and ent.Player.Name or ent.Character.Name
+							drawings.Text.Position = Vector2.new(pos.X, posY - 20)
+						else
+							drawings.Text.Visible = false
+						end
+					end
+				end)
+				ESP:Clean({ Disconnect = function() RunService:UnbindFromRenderStep("LionRayfieldESP") end })
+			else
+				for ent in pairs(Reference) do removeDrawingESP(ent) end
+			end
+		end
+	})
+
+	BoundingBox = ESP:AddToggle({ Name = 'Box', Default = true })
+	Filled = ESP:AddToggle({ Name = 'Box Fill', Default = false })
+	HealthBar = ESP:AddToggle({ Name = 'Health Bar', Default = true })
+	Name = ESP:AddToggle({ Name = 'Name Text', Default = true })
+end)
+
+run(function()
+	local AimAssist, FOV, Speed, RangeCircle, ClosestPart
+	local CircleObject
+	local Camera = workspace.CurrentCamera
+
+	local function ensureCircle()
+		if not CircleObject and Drawing then
+			CircleObject = Drawing.new("Circle")
+			CircleObject.Filled = false
+			CircleObject.Color = Color3.fromRGB(255, 255, 255)
+			CircleObject.Radius = FOV and FOV.Value or 120
+			CircleObject.Thickness = 1.5
+			CircleObject.Visible = false
+		end
+	end
+
+	local function removeCircle()
+		if CircleObject then
+			pcall(function() CircleObject.Visible = false CircleObject:Remove() end)
+			CircleObject = nil
+		end
+	end
+
+	local function getTarget()
+		local mouse = UserInputService:GetMouseLocation()
+		local best, bestDist = nil, (FOV and FOV.Value or 120)
+		for _, plr in ipairs(Players:GetPlayers()) do
+			if plr ~= LocalPlayer and plr.Character then
+				local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+				local part = plr.Character:FindFirstChild("Head") or plr.Character:FindFirstChild("HumanoidRootPart")
+				if hum and hum.Health > 0 and part then
+					local pos, vis = Camera:WorldToViewportPoint(part.Position)
+					if vis then
+						local dist = (Vector2.new(pos.X, pos.Y) - mouse).Magnitude
+						if dist < bestDist then
+							bestDist = dist
+							best = part
+						end
+					end
+				end
+			end
+		end
+		return best
+	end
+
+	AimAssist = Combat:AddModule({
+		Name = "Aim Assist",
+		Function = function(enabled)
+			if enabled then
+				if RangeCircle and RangeCircle.Enabled then ensureCircle() end
+				AimAssist:Clean(RunService.RenderStepped:Connect(function(dt)
+					local mouse = UserInputService:GetMouseLocation()
+					if CircleObject then
+						CircleObject.Position = mouse
+						CircleObject.Visible = AimAssist.Enabled and (RangeCircle and RangeCircle.Enabled)
+						CircleObject.Radius = FOV and FOV.Value or 120
+					end
+
+					if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
+						local target = getTarget()
+						if target then
+							local pos = Camera:WorldToViewportPoint(target.Position)
+							local diff = (Vector2.new(pos.X, pos.Y) - mouse)
+							local smooth = math.clamp((Speed and Speed.Value or 50) / 100, 0.01, 1)
+							mousemoverel(diff.X * smooth * dt * 30, diff.Y * smooth * dt * 30)
+						end
+					end
+				end))
+			else
+				removeCircle()
+			end
+		end
+	})
+
+	FOV = AimAssist:AddSlider({ Name = 'FOV Radius', Min = 10, Max = 800, Default = 120, Suffix = ' px' })
+	Speed = AimAssist:AddSlider({ Name = 'Smoothing Speed', Min = 1, Max = 100, Default = 50, Suffix = '%' })
+	RangeCircle = AimAssist:AddToggle({ Name = 'Show Circle', Default = true })
+end)
+
+run(function()
+    local Triggerbot, ReactionTime, MaxDistance
+    local lastShot = 0
+
+    Triggerbot = Combat:AddModule({
+        Name = "Triggerbot",
+        Function = function(callback)
+            if callback then
+                Triggerbot:Clean(RunService.Heartbeat:Connect(function()
+                    local camera = workspace.CurrentCamera
+                    if not camera or not LocalPlayer.Character then return end
+                    local ray = camera:ViewportPointToRay(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+                    local rayParams = RaycastParams.new()
+                    rayParams.FilterType = Enum.RaycastFilterType.Exclude
+                    rayParams.FilterDescendantsInstances = {LocalPlayer.Character, camera}
+
+                    local hit = workspace:Raycast(ray.Origin, ray.Direction * (MaxDistance and MaxDistance.Value or 200), rayParams)
+                    if hit and hit.Instance then
+                        local model = hit.Instance:FindFirstAncestorOfClass("Model")
+                        local hum = model and model:FindFirstChildOfClass("Humanoid")
+                        local player = model and Players:GetPlayerFromCharacter(model)
+                        if hum and hum.Health > 0 and player and player ~= LocalPlayer then
+                            if tick() - lastShot > ((ReactionTime and ReactionTime.Value or 50) / 1000) then
+                                lastShot = tick()
+                                mouse1click()
+                            end
+                        end
+                    end
+                end))
+            end
+        end
+    })
+
+    ReactionTime = Triggerbot:AddSlider({ Name = "Reaction Delay", Min = 0, Max = 300, Default = 30, Suffix = " ms" })
+    MaxDistance = Triggerbot:AddSlider({ Name = "Max Distance", Min = 25, Max = 500, Default = 200, Suffix = " studs" })
+end)
+
+run(function()
+    local Weapons, NoSpread, FastShoot, FullAuto
+    local oldFireServer
+
+    Weapons = Combat:AddModule({
+        Name = "Weapons",
+        Function = function(callback)
+            if callback then
+                pcall(function()
+                    local gunModule = require(LocalPlayer.PlayerScripts.Modules.ItemTypes.Gun)
+                    if not oldFireServer and gunModule.StartShooting then
+                        local oldStart = gunModule.StartShooting
+                        gunModule.StartShooting = function(self, ...)
+                            local res = {oldStart(self, ...)}
+                            if Weapons.Enabled and NoSpread and NoSpread.Enabled and typeof(res[3]) == "table" then
+                                res[4] = true
+                            end
+                            return unpack(res)
+                        end
+                    end
+                end)
+            end
+        end
+    })
+
+    NoSpread = Weapons:AddToggle({ Name = "No Spread", Default = true })
+    FastShoot = Weapons:AddToggle({ Name = "Fast Shoot", Default = true })
+    FullAuto = Weapons:AddToggle({ Name = "Full Auto", Default = true })
+end)
+
+run(function()
+    local Fly, FlySpeed
+    local w, s, a, d, up, down = 0, 0, 0, 0, 0, 0
+    local bodyGyro, bodyVel
+
+    Fly = Movement:AddModule({
+        Name = "Fly",
+        Function = function(callback)
+            local function cleanup()
+                if bodyGyro then bodyGyro:Destroy() bodyGyro = nil end
+                if bodyVel then bodyVel:Destroy() bodyVel = nil end
+                local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                if hum then hum.PlatformStand = false end
+                w, s, a, d, up, down = 0, 0, 0, 0, 0, 0
+            end
+
+            if callback then
+                cleanup()
+                local char = LocalPlayer.Character
+                local root = char and char:FindFirstChild("HumanoidRootPart")
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+                if not root or not hum then return end
+
+                bodyGyro = Instance.new("BodyGyro")
+                bodyGyro.P = 9e4
+                bodyGyro.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+                bodyGyro.CFrame = root.CFrame
+                bodyGyro.Parent = root
+
+                bodyVel = Instance.new("BodyVelocity")
+                bodyVel.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+                bodyVel.Velocity = Vector3.zero
+                bodyVel.Parent = root
+
+                hum.PlatformStand = true
+
+                Fly:Clean(UserInputService.InputBegan:Connect(function(input, processed)
+                    if processed then return end
+                    if input.KeyCode == Enum.KeyCode.W then w = 1
+                    elseif input.KeyCode == Enum.KeyCode.S then s = 1
+                    elseif input.KeyCode == Enum.KeyCode.A then a = 1
+                    elseif input.KeyCode == Enum.KeyCode.D then d = 1
+                    elseif input.KeyCode == Enum.KeyCode.Space then up = 1
+                    elseif input.KeyCode == Enum.KeyCode.LeftShift then down = 1 end
+                end))
+
+                Fly:Clean(UserInputService.InputEnded:Connect(function(input)
+                    if input.KeyCode == Enum.KeyCode.W then w = 0
+                    elseif input.KeyCode == Enum.KeyCode.S then s = 0
+                    elseif input.KeyCode == Enum.KeyCode.A then a = 0
+                    elseif input.KeyCode == Enum.KeyCode.D then d = 0
+                    elseif input.KeyCode == Enum.KeyCode.Space then up = 0
+                    elseif input.KeyCode == Enum.KeyCode.LeftShift then down = 0 end
+                end))
+
+                Fly:Clean(RunService.RenderStepped:Connect(function()
+                    local camera = workspace.CurrentCamera
+                    if not camera or not bodyGyro or not bodyVel then return end
+                    bodyGyro.CFrame = camera.CFrame
+                    local dir = (camera.CFrame.LookVector * (w - s)) + (camera.CFrame.RightVector * (d - a)) + (Vector3.new(0, 1, 0) * (up - down))
+                    local spd = FlySpeed and FlySpeed.Value or 50
+                    bodyVel.Velocity = dir.Magnitude > 0 and (dir.Unit * spd) or Vector3.zero
+                end))
+            else
+                cleanup()
+            end
+        end
+    })
+
+    FlySpeed = Fly:AddSlider({ Name = "Fly Speed", Min = 10, Max = 300, Default = 80, Suffix = " studs/s" })
+end)
+
+run(function()
+    local CharacterMovement, VelocityEnabled, VelocitySpeed, SlideBoost
+
+    CharacterMovement = Player:AddModule({
+        Name = "Movement",
+        Function = function(callback)
+            if callback then
+                CharacterMovement:Clean(RunService.Heartbeat:Connect(function()
+                    if VelocityEnabled and VelocityEnabled.Enabled then
+                        local char = LocalPlayer.Character
+                        local root = char and char:FindFirstChild("HumanoidRootPart")
+                        local hum = char and char:FindFirstChildOfClass("Humanoid")
+                        if root and hum and hum.Health > 0 then
+                            local move = hum.MoveDirection
+                            if move.Magnitude > 0.1 then
+                                local spd = VelocitySpeed and VelocitySpeed.Value or 50
+                                root.AssemblyLinearVelocity = Vector3.new(move.X * spd, root.AssemblyLinearVelocity.Y, move.Z * spd)
+                            end
+                        end
+                    end
+                end))
+            end
+        end
+    })
+
+    VelocityEnabled = CharacterMovement:AddToggle({ Name = "Velocity Speed", Default = true })
+    VelocitySpeed = CharacterMovement:AddSlider({ Name = "Speed Value", Min = 10, Max = 250, Default = 55, Suffix = " studs/s" })
+    SlideBoost = CharacterMovement:AddToggle({ Name = "Slide Boost", Default = true })
+end)
+
+run(function()
+    local Freecam, Speed
+    local freecamPosition
+    local randomkey = "LionRayfieldFreecam"
+
+    local function isFreecamDown(...)
+        for _, k in ipairs({...}) do
+            if UserInputService:IsKeyDown(k) then return true end
+        end
+        return false
+    end
+
+    Freecam = Render:AddModule({
+        Name = "Freecam",
+        Function = function(callback)
+            if callback then
+                local camera = workspace.CurrentCamera
+                freecamPosition = camera and camera.CFrame.Position or Vector3.zero
+                RunService:BindToRenderStep(randomkey, Enum.RenderPriority.Camera.Value + 1, function(dt)
+                    local cam = workspace.CurrentCamera
+                    if not cam then return end
+                    local rot = cam.CFrame - cam.CFrame.Position
+                    local move = Vector3.zero
+                    if isFreecamDown(Enum.KeyCode.W) then move += Vector3.new(0, 0, -1) end
+                    if isFreecamDown(Enum.KeyCode.S) then move += Vector3.new(0, 0, 1) end
+                    if isFreecamDown(Enum.KeyCode.A) then move += Vector3.new(-1, 0, 0) end
+                    if isFreecamDown(Enum.KeyCode.D) then move += Vector3.new(1, 0, 0) end
+                    if isFreecamDown(Enum.KeyCode.E) then move += Vector3.new(0, 1, 0) end
+                    if isFreecamDown(Enum.KeyCode.Q) then move += Vector3.new(0, -1, 0) end
+                    local spd = Speed and Speed.Value or 50
+                    if move.Magnitude > 0 then
+                        freecamPosition += rot:VectorToWorldSpace(move.Unit) * spd * dt
+                    end
+                    cam.CFrame = CFrame.new(freecamPosition) * rot
+                end)
+            else
+                pcall(function() RunService:UnbindFromRenderStep(randomkey) end)
+            end
+        end
+    })
+
+    Speed = Freecam:AddSlider({ Name = "Speed", Min = 10, Max = 300, Default = 60, Suffix = " studs/s" })
+end)
+
+run(function()
+    local Ragebot, VoidSpam, AttackMode
+
+    Ragebot = Movement:AddModule({
+        Name = "Ragebot",
+        Function = function(callback)
+            if callback then
+                local rs = cloneref(game:GetService("ReplicatedStorage"))
+                local enums = require(rs.Modules.EnumLibrary)
+                local util = require(rs.Modules.Utility)
+                local useItem = rs.Remotes.Replication.Fighter.UseItem
+
+                Ragebot:Clean(RunService.Heartbeat:Connect(function()
+                    if not Ragebot.Enabled then return end
+                    local target
+                    local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    if not myRoot then return end
+
+                    for _, p in ipairs(Players:GetPlayers()) do
+                        if p ~= LocalPlayer and p.Character then
+                            local hum = p.Character:FindFirstChildOfClass("Humanoid")
+                            local tr = p.Character:FindFirstChild("HumanoidRootPart")
+                            if hum and hum.Health > 0 and tr then
+                                target = p.Character
+                                break
+                            end
+                        end
+                    end
+
+                    if target and target:FindFirstChild("Head") then
+                        local head = target.Head
+                        local look = CFrame.new(myRoot.Position, head.Position)
+                        local data = {}
+                        data[utf8.char(1)] = {
+                            [utf8.char(0)] = util:EncodeCFrame(look),
+                            [utf8.char(1)] = util:EncodeCFrame(look),
+                            [utf8.char(2)] = head,
+                            [utf8.char(3)] = util:EncodeCFrame(head.CFrame:ToObjectSpace(CFrame.new(head.Position)))
+                        }
+                        local fighterCtrl = require(LocalPlayer.PlayerScripts.Controllers.FighterController)
+                        local item = fighterCtrl and fighterCtrl.LocalFighter and fighterCtrl.LocalFighter.EquippedItem
+                        if item and item.Get and (item:Get("Ammo") or 0) > 0 then
+                            useItem:FireServer(item:Get("ObjectID"), enums:ToEnum("StartShooting"), data, nil)
+                        end
+                    end
+                end))
+            end
+        end
+    })
+
+    VoidSpam = Ragebot:AddToggle({ Name = "Void Spam", Default = true })
+    AttackMode = Ragebot:AddDropdown({ Name = "Attack Mode", List = {"Gun", "Knife", "Melee"}, Default = "Gun" })
+end)
+
+run(function()
+    local Desync, PitchMode, YawMode
+
+    Desync = Movement:AddModule({
+        Name = "Anti Aim",
+        Function = function(callback)
+            if callback then
+                local updateCameraRotation = ReplicatedStorage:FindFirstChild("Remotes")
+                    and ReplicatedStorage.Remotes:FindFirstChild("Replication")
+                    and ReplicatedStorage.Remotes.Replication:FindFirstChild("Fighter")
+                    and ReplicatedStorage.Remotes.Replication.Fighter:FindFirstChild("UpdateCameraRotation")
+                local utility = require(ReplicatedStorage.Modules.Utility)
+
+                Desync:Clean(RunService.Heartbeat:Connect(function()
+                    if not Desync.Enabled or not updateCameraRotation then return end
+                    local pitch = 0
+                    local yaw = 0
+                    if PitchMode and PitchMode.Value == "down" then pitch = math.rad(89)
+                    elseif PitchMode and PitchMode.Value == "up" then pitch = math.rad(-89) end
+                    if YawMode and YawMode.Value == "spin" then yaw = math.rad((tick() * 720) % 360)
+                    elseif YawMode and YawMode.Value == "backwards" then yaw = math.rad(180) end
+                    updateCameraRotation:FireServer(utility:EncodeCameraRotation(Vector2.new(pitch, yaw)), nil)
+                end))
+            end
+        end
+    })
+
+    PitchMode = Desync:AddDropdown({ Name = "Pitch", List = {"disabled", "up", "down", "random"}, Default = "down" })
+    YawMode = Desync:AddDropdown({ Name = "Yaw", List = {"disabled", "backwards", "spin", "random"}, Default = "spin" })
+end)
+
+run(function()
+    local LightingMod, Ambient, Exposure, FogColor
+
+    LightingMod = Movement:AddModule({
+        Name = "Lighting",
+        Function = function(callback)
+            if callback then
+                if Ambient and Ambient.Enabled then
+                    Lighting.Ambient = Ambient.Value or Color3.fromRGB(150, 150, 150)
+                end
+            end
+        end
+    })
+
+    Ambient = LightingMod:AddToggle({ Name = "Override Ambient", Default = true, Color = Color3.fromRGB(180, 180, 200) })
+    FogColor = LightingMod:AddToggle({ Name = "Fog Override", Default = false, Color = Color3.fromRGB(200, 200, 255) })
+end)
+
+run(function()
+    local FOVMod, FOVValue
+
+    FOVMod = Movement:AddModule({
+        Name = "Camera FOV",
+        Function = function(callback)
+            if callback then
+                FOVMod:Clean(RunService.RenderStepped:Connect(function()
+                    if FOVMod.Enabled and workspace.CurrentCamera then
+                        workspace.CurrentCamera.FieldOfView = FOVValue and FOVValue.Value or 100
+                    end
+                end))
+            end
+        end
+    })
+
+    FOVValue = FOVMod:AddSlider({ Name = "Field Of View", Min = 30, Max = 120, Default = 100, Suffix = " deg" })
+end)
+
+run(function()
+    local Spoofer, NameInput
+
+    Spoofer = Other:AddModule({
+        Name = "Name Spoofer",
+        Function = function(callback)
+            if callback and hookmetamethod then
+                local oldIndex
+                oldIndex = hookmetamethod(game, "__index", newcclosure(function(self, key)
+                    if Spoofer.Enabled and self == LocalPlayer and (key == "Name" or key == "DisplayName") then
+                        local custom = NameInput and NameInput.Value or ""
+                        if custom ~= "" then return custom end
+                    end
+                    return oldIndex(self, key)
+                end))
+            end
+        end
+    })
+
+    NameInput = Spoofer:AddInputBox({ Name = "Fake Name", Default = "Player1", Placeholder = "Enter fake username..." })
+end)
+
+mainapi.Loaded = true
+mainapi:Notify({
+    Title = "Lion UI",
+    Text = "Rayfield UI loaded successfully!",
+    Duration = 3
+})
 
 return mainapi
